@@ -7,7 +7,7 @@ const git = simpleGit();
 const path = "./data.json";
 
 const startDate = moment("2026-01-01");
-const endDate   = moment("2026-7-13");
+const endDate   = moment("2026-07-13");
 
 const commitDay = async (date) => {
   const data = { date: date.format() };
