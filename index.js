@@ -35,7 +35,7 @@ const run = async () => {
     current.add(1, "day");
   }
 
-  await git.push();
+  await git.push(["origin", "main", "--force"]);
   console.log("✅ 2025 fully green ho gaya");
 };
 
