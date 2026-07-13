@@ -1,0 +1,117 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/client"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      String   // "ADMIN", "AGENT", "CUSTOMER"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  ticketsAssigned Ticket[] @relation("AssigneeRelation")
+  customerProfile CustomerProfile?
+}
+
+model CustomerProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneNumber String?
+  company     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tickets     Ticket[]
+}
+
+model Ticket {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  status      String   // "OPEN", "IN_PROGRESS", "PENDING", "RESOLVED", "CLOSED"
+  priority    String   // "LOW", "MEDIUM", "HIGH", "URGENT"
+  category    String   // "TECHNICAL", "BILLING", "GENERAL"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // SLA Timers
+  slaDeadline DateTime?
+  slaBreached Boolean   @default(false)
+
+  // Relations
+  customerId  String
+  customer    CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  assigneeId  String?
+  assignee    User?    @relation("AssigneeRelation", fields: [assigneeId], references: [id])
+  
+  messages    Message[]
+  feedback    Feedback?
+  complaint   Complaint?
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  ticketId    String
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId    String
+  senderRole  String   // "AGENT", "CUSTOMER", "SYSTEM"
+  body        String
+  channel     String   // "LIVE_CHAT", "WHATSAPP", "EMAIL"
+  direction   String   // "INBOUND", "OUTBOUND"
+  createdAt   DateTime @default(now())
+}
+
+model SLAPolicy {
+  id                 String   @id @default(uuid())
+  priority           String   @unique // "LOW", "MEDIUM", "HIGH", "URGENT"
+  responseTimeHours  Float
+  resolutionTimeHours Float
+}
+
+model Complaint {
+  id          String   @id @default(uuid())
+  ticketId    String   @unique
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  reason      String
+  status      String   // "PENDING", "INVESTIGATING", "RESOLVED"
+  escalatedTo String?  // Manager name/email
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Feedback {
+  id          String   @id @default(uuid())
+  ticketId    String   @unique
+  ticket      Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  score       Int      // CSAT score 1-5 or NPS score 0-10
+  comment     String?
+  createdAt   DateTime @default(now())
+}
+
+model KnowledgeArticle {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  category    String
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  details   String
+  createdAt DateTime @default(now())
+}

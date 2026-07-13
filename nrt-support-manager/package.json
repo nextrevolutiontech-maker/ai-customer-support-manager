@@ -1,0 +1,26 @@
+{
+  "name": "nrt-ai-customer-support-manager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "NRT AI Customer Support Manager Monorepo",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:server": "npm run start:dev --workspace=server",
+    "dev:web": "npm run dev --workspace=web",
+    "build:server": "npm run build --workspace=server",
+    "build:web": "npm run build --workspace=web",
+    "start:server": "npm run start:prod --workspace=server",
+    "start:web": "npm run start --workspace=web",
+    "prisma:generate": "npm run prisma:generate --workspace=server",
+    "prisma:migrate": "npm run prisma:migrate --workspace=server"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.3",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3"
+  }
+}
